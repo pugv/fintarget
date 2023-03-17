@@ -1,0 +1,66 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+
+option csharp_namespace = "RMDS";
+
+package RMDS;
+
+service RealtimeMDService {
+
+  rpc RequestMarketData (MarketDataRequest) returns (MarketDataReply);
+  rpc PollMarketData (MarketDataRequest) returns (MarketDataReply);
+  rpc SubscribeToMarketData (MarketDataRequest) returns (google.protobuf.Empty);
+  rpc GetCandles (GetCandlesRequest) returns (GetCandlesResponse);
+}
+
+message MarketDataRequest {
+  repeated string SecurityList = 1;
+}
+
+message MarketDataReply {
+  repeated BidAsk BidAsks = 1;
+}
+
+message GetCandlesRequest {
+    google.protobuf.Timestamp Start = 1;
+    repeated string SecurityList = 2;
+}
+
+message GetCandlesResponse {
+    google.protobuf.Timestamp Start = 1;
+    google.protobuf.Timestamp End = 2;
+    repeated Hloc Candles = 3;
+}
+
+message Hloc {
+    string Security = 3;
+    DecimalValue High = 4;
+    DecimalValue Low = 5;
+    DecimalValue Open = 6;
+    DecimalValue Close = 7;
+}
+
+message BidAsk {
+    google.protobuf.Timestamp TimeStamp = 1;
+    string Security = 2;
+    DecimalValue Bid = 3;
+    DecimalValue Ask = 4;
+}
+
+message DecimalValue {
+
+  // The whole units of the amount.
+  // For example 1 unit is one US dollar.
+  int64 units = 1;
+
+  // Number of nano (10^-9) units of the amount.
+  // The value must be between -999,999,999 and +999,999,999 inclusive.
+  // If `units` is positive, `nanos` must be positive or zero.
+  // If `units` is zero, `nanos` can be positive, zero, or negative.
+  // If `units` is negative, `nanos` must be negative or zero.
+  // For example $-1.75 is represented as `units`=-1 and `nanos`=-750,000,000.
+  int32 nanos = 2;
+}
+
